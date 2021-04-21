@@ -5,9 +5,15 @@ class expressServer {
     constructor() {
         this.app = express();
         this.port = config.port;
-        this._notFound();
+        
         this._middlewares();
+        this._routes();
+        this._notFound();
         this._errorHandler();
+    }
+
+    _routes() {
+        this.app.use('/posts', require('../../routes/post'));
     }
 
     _middlewares() {
@@ -18,7 +24,7 @@ class expressServer {
         this.app.use((req, res, next) => {
             let error = new Error("Not found");
             error.code = 404;
-            next(error)
+            next(error);
         })
     }
 
