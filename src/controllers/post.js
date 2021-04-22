@@ -1,4 +1,7 @@
 const express = require('express');
+const PostRepository = require('../repository/postRepository');
+const repository = new PostRepository();
+const Success = require('../handlers/successHandler');
 
 /**
  * 
@@ -6,16 +9,15 @@ const express = require('express');
  * @param {express.Response} res 
  */
 
-const findPosts = (req, res) => {
-    res.json([
-        {
-            id: 1,
-            title:  'Javascript Async Await',
-            image: 'url',
-            category: 'development',
-            crationDate: '2021-04-10'
-        }
-    ])
+const findPosts = async (req, res, next) => {
+
+    try {
+        const posts = await repository.find();
+        res.json(new Success(posts));
+    } catch (error) {
+        next(error);
+    }
+
 }
 
 /**
@@ -24,15 +26,14 @@ const findPosts = (req, res) => {
  * @param {express.Response} res 
  */
 
- const findPostById = (req, res) => {
-    const { id } = req.params;
-    res.json({
-        id,
-        title:  'Javascript Async Await',
-        image: 'url',
-        category: 'development',
-        crationDate: '2021-04-10'
-    })
+const findPostById = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const post = await repository.findById(id);
+        res.json(new Success(post));
+    } catch (error) {
+        next(error);
+    }
 }
 
 /**
@@ -41,9 +42,14 @@ const findPosts = (req, res) => {
  * @param {express.Response} res 
  */
 
- const savePost = (req, res) => {
-    const post = req.body;
-    res.json({ status: 'OK', data: post })
+const savePost = async (req, res, next) => {
+    try {
+        const post = req.body;
+        await repository.save(post);
+        res.json(new Success(`Post ${post.title} saved!`));
+    } catch (error) {
+        next(error);
+    }
 }
 
 /**
@@ -52,11 +58,15 @@ const findPosts = (req, res) => {
  * @param {express.Response} res 
  */
 
- const updatePost = (req, res) => {
-    const { id } = req.params;
-    const body = req.body;
-
-    res.json({ status: 'OK', data: body })
+const updatePost = async (req, res, next) => {
+    try {
+        const {id} = req.params;
+        const post = req.body;
+        await repository.update(id, post);
+        res.json(new Success(`Post with id: ${id} updated!`));
+    } catch (error) {
+        next(error);
+    }
 }
 
 /**
@@ -65,8 +75,14 @@ const findPosts = (req, res) => {
  * @param {express.Response} res 
  */
 
- const deletePost = (req, res) => {
-    res.json({ status: 'OK', data: `Post with id ${id} deleted` })
+const deletePost = async (req, res, next) => {
+    try {
+        const {id} = req.params;
+        const post = await repository.delete(id);
+        res.json(new Success(`Post with id: ${id} deleted!`));
+    } catch (error) {
+        next(error);
+    }
 }
 
 module.exports = {
